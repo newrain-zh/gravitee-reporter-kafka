@@ -109,7 +109,6 @@ public class KafkaReporterIT {
         log.setClientResponse(response);
 
         reporter.report(log);
-
         log.setRequestId("2");
 
         reporter.report(log);

@@ -49,4 +49,20 @@ public class HostAddressTest {
         assertThat("node1:6062,node2:6063").isEqualTo(str);
     }
 
+
+    @Test
+    public void test() {
+        String s = "https://mobilegateway.bestwehotel.com/member_base/autoLogin.json?appcode=2e31af3adde71b501e1e698c9800222009fc6090e885054789b1326035aa6dde62aeb59f44b1c06d8eaf59ae81b1c700004f5ba192805300d78de9d4f2e562c3&clientVersion=5.0.2&deviceCode=68F336FE-94B9-4232-BE69-AD438FAEA824&deviceSystem=ios&anguage=ZH&os=iOS&sellerId=309488&sid=309488&sign=D6E4798500B91D52DC77C1BEEAFB5C26&systemVersion=13.3.1&timestamp=1587526734583&token=P9zo4ONa3MZhJzuNzRbjK8TXc3pxIbZuUyBGT8L2tsvIIDM%2BXDqy%2BNcdVLt%2BIGZZ&userId=0&weHotelId=0";
+        String s1 = s.substring(s.indexOf("?") + 1, s.length() - 1);
+        String[] split = s1.split("&");
+        for (String str : split) {
+            String key = str.substring(0, str.indexOf("="));
+            String value = str.substring(str.indexOf("=") + 1);
+            System.out.println("{" + key + ":" + value + "}");
+        }
+
+
+    }
+
+
 }

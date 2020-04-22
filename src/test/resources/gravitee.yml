@@ -1,9 +1,10 @@
 reporters:
   kafka:
-    topic: gateway_log_topic
+    topic: mobilegateway
     hosts:
-      - node1:6062
-      - node2:6062
+      - 172.25.32.95:9092
+      - 172.25.32.96:9092
+      - 172.25.32.97:9092
     type:
       - log
       - monitor
@@ -13,15 +14,15 @@ reporters:
           conf: krb5.conf
     settings:
       acks: 1
-      security:
-        protocol: SASL_SSL
-      sasl:
-        jaas:
-          config: >-
-            com.sun.security.auth.module.Krb5LoginModule required
-            useKeyTab=true
-            refreshKrb5Config=true
-            storeKey=true
-            serviceName="kafka"
-            keyTab="key.keytab"
-            principal="foo@DOMAIN.COM";
+#      security:
+#        protocol: SASL_SSL
+#      sasl:
+#        jaas:
+#          config: >-
+#            com.sun.security.auth.module.Krb5LoginModule required
+#            useKeyTab=true
+#            refreshKrb5Config=true
+#            storeKey=true
+#            serviceName="kafka"
+#            keyTab="key.keytab"
+#            principal="foo@DOMAIN.COM";

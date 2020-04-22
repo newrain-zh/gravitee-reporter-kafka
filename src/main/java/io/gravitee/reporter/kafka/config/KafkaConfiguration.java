@@ -135,7 +135,6 @@ public class KafkaConfiguration {
     private String buildkafkaKey(String key) {
         return key
                 .replaceAll("reporters.kafka.settings.", "")
-                .replaceAll("_",".");
+                .replaceAll("_", ".");
     }
-
 }
