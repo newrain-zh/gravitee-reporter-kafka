@@ -15,10 +15,14 @@
  */
 package io.gravitee.reporter.kafka.model;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.gravitee.reporter.kafka.utils.AesUtil;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -52,7 +56,7 @@ public class HostAddressTest {
 
     @Test
     public void test() {
-        String s = "https://mobilegateway.bestwehotel.com/member_base/autoLogin.json?appcode=2e31af3adde71b501e1e698c9800222009fc6090e885054789b1326035aa6dde62aeb59f44b1c06d8eaf59ae81b1c700004f5ba192805300d78de9d4f2e562c3&clientVersion=5.0.2&deviceCode=68F336FE-94B9-4232-BE69-AD438FAEA824&deviceSystem=ios&anguage=ZH&os=iOS&sellerId=309488&sid=309488&sign=D6E4798500B91D52DC77C1BEEAFB5C26&systemVersion=13.3.1&timestamp=1587526734583&token=P9zo4ONa3MZhJzuNzRbjK8TXc3pxIbZuUyBGT8L2tsvIIDM%2BXDqy%2BNcdVLt%2BIGZZ&userId=0&weHotelId=0";
+        String s = "appcode=55115695dd40473655d53e251575f95edafeacc75bbe27985063df64d2ae723914e7c172bfac375ac0b1601570a00d38783da4f4a3f74434ebcba816cf995df6&clientVersion=5.0.2&deviceSystem=ios&deviceType=68F336FE-94B9-4232-BE69-AD438FAEA824&deviceCode=68F336FE-94B9-4232-BE69-AD438FAEA824&macAddress=02%3A00%3A00%3A00%3A00%3A00&sid=309488&sign=AAFF4F046E2C7CFA457EE1F34358FCF6&systemVersion=13.3.1&timestamp=1587611771520&userId=0&weHotelId=2d69d671dbff99895dcb7df7633ff801";
         String s1 = s.substring(s.indexOf("?") + 1, s.length() - 1);
         String[] split = s1.split("&");
         for (String str : split) {
@@ -60,8 +64,27 @@ public class HostAddressTest {
             String value = str.substring(str.indexOf("=") + 1);
             System.out.println("{" + key + ":" + value + "}");
         }
+    }
 
+    @Test
+    public void testStr1(){
+        String s = "appcode=55115695dd40473655d53e251575f95edafeacc75bbe27985063df64d2ae723914e7c172bfac375ac0b1601570a00d38783da4f4a3f74434ebcba816cf995df6&clientVersion=5.0.2&deviceSystem=ios&deviceType=68F336FE-94B9-4232-BE69-AD438FAEA824&deviceCode=68F336FE-94B9-4232-BE69-AD438FAEA824&macAddress=02%3A00%3A00%3A00%3A00%3A00&sid=309488&sign=AAFF4F046E2C7CFA457EE1F34358FCF6&systemVersion=13.3.1&timestamp=1587611771520&userId=0&weHotelId=2d69d671dbff99895dcb7df7633ff801";
+        String[] split = s.split("&");
+        for (String str : split) {
+            String key = str.substring(0, str.indexOf("="));
+            String value = str.substring(str.indexOf("=") + 1);
+            System.out.println("{" + key + ":" + value + "}");
+        }
 
+    }
+
+    @Test
+    public void testStr() throws IOException {
+        String str = "{\"body\":\"Hello\"}";
+        ObjectMapper mapper = new ObjectMapper();
+        Map map = mapper.readValue(str, Map.class);
+        String decrypts = AesUtil.decrypts("2d69d671dbff99895dcb7df7633ff801");
+        System.out.println(decrypts);
     }
 
 

@@ -100,8 +100,8 @@ public class AesUtil {
             } else {
                 byte[] b = new byte[l / 2];
 
-                for(int i = 0; i != l / 2; ++i) {
-                    b[i] = (byte)Integer.parseInt(sourceString.substring(i * 2, i * 2 + 2), 16);
+                for (int i = 0; i != l / 2; ++i) {
+                    b[i] = (byte) Integer.parseInt(sourceString.substring(i * 2, i * 2 + 2), 16);
                 }
 
                 return b;
@@ -112,7 +112,7 @@ public class AesUtil {
     private static String byte2hex(byte[] sourceByteArray) {
         StringBuilder result = new StringBuilder();
 
-        for(int n = 0; n < sourceByteArray.length; ++n) {
+        for (int n = 0; n < sourceByteArray.length; ++n) {
             String temp = Integer.toHexString(sourceByteArray[n] & 255);
             if (temp.length() == 1) {
                 result.append("0" + temp);
@@ -122,5 +122,10 @@ public class AesUtil {
         }
 
         return result.toString().toUpperCase();
+    }
+
+    public static void main(String[] args) {
+        String decrypts = AesUtil.decrypts("2d69d671dbff99895dcb7df7633ff801");
+        System.out.println(decrypts);
     }
 }

@@ -7,7 +7,7 @@ reporters:
       - 172.25.32.97:9092
     type:
       - log
-      - monitor
+      - request
     java:
       security:
         krb5:

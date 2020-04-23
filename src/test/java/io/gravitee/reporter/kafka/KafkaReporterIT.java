@@ -90,18 +90,18 @@ public class KafkaReporterIT {
     public void shouldCreateInstanceAndSetEnvironnement() throws Exception {
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type", "application/json");
+        headers.set("Content-Type", "application/x-www-form-urlencoded;charset=utf8");
 
         Request request = new Request();
         request.setHeaders(headers);
         request.setMethod(HttpMethod.POST);
-        request.setUri("http://foo.com/endpoint?param=1&param2=2");
-        request.setBody("{'body':'Hello'}");
+        request.setUri("http://172.21.221.85:8082/demo/test");
+        request.setBody("appcode=55115695dd40473655d53e251575f95edafeacc75bbe27985063df64d2ae723914e7c172bfac375ac0b1601570a00d38783da4f4a3f74434ebcba816cf995df6&clientVersion=5.0.2&deviceSystem=ios&deviceType=68F336FE-94B9-4232-BE69-AD438FAEA824&deviceCode=68F336FE-94B9-4232-BE69-AD438FAEA824&macAddress=02%3A00%3A00%3A00%3A00%3A00&sid=309488&sign=AAFF4F046E2C7CFA457EE1F34358FCF6&systemVersion=13.3.1&timestamp=1587611771520&userId=0&weHotelId=2d69d671dbff99895dcb7df7633ff801");
 
         Response response = new Response();
         response.setStatus(201);
         response.setHeaders(headers);
-        response.setBody("{'body':'World'}");
+        response.setBody("test ok");
 
         Log log = new Log(System.currentTimeMillis());
         log.setRequestId("1");
