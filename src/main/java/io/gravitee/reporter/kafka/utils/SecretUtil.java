@@ -67,8 +67,14 @@ public class SecretUtil {
         }
     }
 
+    /**
+     * 不做超时校验
+     * @param timeCode
+     * @param timeout
+     * @return
+     */
     public static boolean timeOut(String timeCode, long timeout) {
-        Date nowTime = new Date();
+        /*Date nowTime = new Date();
         if (Math.abs(nowTime.getTime() - Long.parseLong(timeCode)) < timeout) {
             return false;
         } else {
@@ -76,7 +82,8 @@ public class SecretUtil {
                     progressTime(String.valueOf(nowTime.getTime())), timeCode, progressTime(timeCode),
                     Math.abs(nowTime.getTime() - Long.parseLong(timeCode)));
             return true;
-        }
+        }*/
+        return false;
     }
 
 

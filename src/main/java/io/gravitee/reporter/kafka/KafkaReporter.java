@@ -84,7 +84,6 @@ public class KafkaReporter extends AbstractService implements Reporter {
                 GatewayLoggerData gatewayLoggerData = new GatewayLoggerData();
                 HttpMethod method = clientRequest.getMethod();
 
-                gatewayLoggerData.setRequestUrl(clientRequest.getUri());
                 //获取IP
                 gatewayLoggerData.setRequestIp(getIp(clientRequest));
                 gatewayLoggerData.setRequestMethod(clientRequest.getMethod().name());
@@ -94,6 +93,7 @@ public class KafkaReporter extends AbstractService implements Reporter {
                 String requestParams = "";
                 LOGGER.info("reportable start2");
                 if ("GET".equals(method.name())) {
+                    gatewayLoggerData.setRequestUrl(clientRequest.getUri().substring(0,clientRequest.getUri().indexOf("?")));
                     requestParams = getParams(clientRequest.getUri());
                     gatewayLoggerData.setRequstData(requestParams);
                 } else if ("POST".equals(method.name())) {

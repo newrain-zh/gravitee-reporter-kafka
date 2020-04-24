@@ -23,7 +23,7 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
 public class AesUtil {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AesUtil.class);
+//    private static final Logger LOGGER = LoggerFactory.getLogger(AesUtil.class);
     private static String key = "mobile_team_pkey";
 
     public AesUtil() {
@@ -31,7 +31,7 @@ public class AesUtil {
 
     public static String decrypts(String source) {
         if (StringUtils.isBlank(source)) {
-            LOGGER.error("解密异常,输入的待解密参数为空");
+//            LOGGER.error("解密异常,输入的待解密参数为空");
             return null;
         } else if ("0".equals(source)) {
             return null;
@@ -45,7 +45,7 @@ public class AesUtil {
                 byte[] original = cipher.doFinal(encrypted1);
                 return new String(original);
             } catch (Exception var6) {
-                LOGGER.error("解密异常,输入的待解密参数为:" + source);
+//                LOGGER.error("解密异常,输入的待解密参数为:" + source);
                 return null;
             }
         }
@@ -53,7 +53,7 @@ public class AesUtil {
 
     public static String decrypts(String source, String clientKey) {
         if (StringUtils.isBlank(source)) {
-            LOGGER.error("解密异常,输入的待解密参数为空");
+//            LOGGER.error("解密异常,输入的待解密参数为空");
             return null;
         } else if ("0".equals(source)) {
             return null;
@@ -67,7 +67,7 @@ public class AesUtil {
                 byte[] original = cipher.doFinal(encrypted1);
                 return new String(original);
             } catch (Exception var7) {
-                LOGGER.error("解密异常,输入的待解密参数为:" + source);
+//                LOGGER.error("解密异常,输入的待解密参数为:" + source);
                 return null;
             }
         }
@@ -125,7 +125,7 @@ public class AesUtil {
     }
 
     public static void main(String[] args) {
-        String decrypts = AesUtil.decrypts("2d69d671dbff99895dcb7df7633ff801");
+        String decrypts = AesUtil.decrypts("3d31be01730cb30621b890a9188c0e262de0facce3d758b4a07a49e8bffc84bc");
         System.out.println(decrypts);
     }
 }
