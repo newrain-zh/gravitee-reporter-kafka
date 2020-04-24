@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -66,23 +66,24 @@ public class KafkaReporterIT {
     @Inject
     private Vertx vertx;
 
-    public static EmbeddedKafkaConfigImpl  conf = new EmbeddedKafkaConfigImpl(6001, 6000,
+    public static EmbeddedKafkaConfigImpl conf = new EmbeddedKafkaConfigImpl(6001, 6000,
             new scala.collection.immutable.HashMap<String, String>(),
             new scala.collection.immutable.HashMap<String, String>(),
             new scala.collection.immutable.HashMap<String, String>());
 
-    public static  EmbeddedKafka$ kafkaUnitServer =EmbeddedKafka$.MODULE$;
+    public static EmbeddedKafka$ kafkaUnitServer = EmbeddedKafka$.MODULE$;
 
     @BeforeClass
     public static void setUpClass() throws FileNotFoundException {
-       // kafkaUnitServer.startup();
+        // kafkaUnitServer.startup();
         File graviteeConf = ResourceUtils.getFile("classpath:gravitee-embedded.yml");
         System.setProperty("gravitee.conf", graviteeConf.getAbsolutePath());
 
         kafkaUnitServer.start(conf);
     }
+
     @AfterClass
-    public static void after(){
+    public static void after() {
         kafkaUnitServer.stop();
     }
 
@@ -94,9 +95,9 @@ public class KafkaReporterIT {
 
         Request request = new Request();
         request.setHeaders(headers);
-        request.setMethod(HttpMethod.POST);
-        request.setUri("http://172.21.221.85:8082/demo/test");
-        request.setBody("appcode=55115695dd40473655d53e251575f95edafeacc75bbe27985063df64d2ae723914e7c172bfac375ac0b1601570a00d38783da4f4a3f74434ebcba816cf995df6&clientVersion=5.0.2&deviceSystem=ios&deviceType=68F336FE-94B9-4232-BE69-AD438FAEA824&deviceCode=68F336FE-94B9-4232-BE69-AD438FAEA824&macAddress=02%3A00%3A00%3A00%3A00%3A00&sid=309488&sign=AAFF4F046E2C7CFA457EE1F34358FCF6&systemVersion=13.3.1&timestamp=1587611771520&userId=0&weHotelId=2d69d671dbff99895dcb7df7633ff801");
+        request.setMethod(HttpMethod.GET);
+        request.setUri("http://172.21.221.62:8082/demo-api/test.json?appcode=cf797404ee6bdc572f71128d481c9f395197a5cdf916f256944249696fe76ab214e7c172bfac375ac0b1601570a00d38783da4f4a3f74434ebcba816cf995df6&deviceCode=68F336FE-94B9-4232-BE69-AD438FAEA824&deviceSystem=ios&deviceType=iPhone11,6&language=ZH&macAddress=02:00:00:00:00:00&os=iOS&sid=309488&sign=93606A88D6BA4A92976EAD88D664342D&systemVersion=13.3.1&timestamp=1587715050763&userId=0&weHotelId=0");
+        request.setBody("");
 
         Response response = new Response();
         response.setStatus(201);

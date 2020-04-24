@@ -26,11 +26,11 @@ public class FirstSigner implements Signable {
     }
 
     @Override
-    public String sign(Signature material, long timeout) throws Exception {
-        return this.handle(material, timeout);
+    public String sign(Signature material) throws Exception {
+        return this.handle(material);
     }
 
-    private String handle(Signature material, long timeout) throws Exception {
-        return MD5Utils.generatePassword(material.getUserId() + material.getChannelSecurityKey() + material.getUUID() + material.getTimeCode(timeout) + material.getLocation() + material.getParamsTotalUniCode());
+    private String handle(Signature material) throws Exception {
+        return MD5Utils.generatePassword(material.getUserId() + material.getChannelSecurityKey() + material.getUUID() + material.getTimeCode() + material.getLocation() + material.getParamsTotalUniCode());
     }
 }

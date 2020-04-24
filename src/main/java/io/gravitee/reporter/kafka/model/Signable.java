@@ -19,6 +19,5 @@ package io.gravitee.reporter.kafka.model;
 import io.gravitee.reporter.kafka.utils.Signature;
 
 public interface Signable {
-
-    String sign(Signature var1, long timeout) throws Exception;
+    String sign(Signature var1) throws Exception;
 }

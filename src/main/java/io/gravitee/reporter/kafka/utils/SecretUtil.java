@@ -15,12 +15,12 @@
  */
 package io.gravitee.reporter.kafka.utils;
 
-import io.gravitee.reporter.kafka.config.KafkaConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
@@ -52,11 +52,12 @@ public class SecretUtil {
         }
     }
 
-    public static String decodeTime(String appCode, long timeout) throws Exception {
+
+    public static String decodeTime(String appCode) throws Exception {
         String[] codeArray = decodeAppCode(appCode);
         if (codeArray.length > 0) {
             String timeCode = codeArray[0];
-            if (timeOut(timeCode, timeout)) {
+            if (timeOut(timeCode, 30000L)) {
                 throw new TimeoutException("time out");
             } else {
                 return timeCode;
@@ -110,25 +111,26 @@ public class SecretUtil {
 
     public static long decodeASCII(Map map) {
         long ascII = 0L;
-
-        for (Object obj : map.keySet()) {
-            if (!"appcode".equals(obj) && !"sign".equals(obj)) {
-                ascII += stringToAscII(map.get(obj));
+        if (map != null) {
+            Iterator var3 = map.keySet().iterator();
+            while (var3.hasNext()) {
+                Object obj = var3.next();
+                if (!"appcode".equals(obj) && !"sign".equals(obj)) {
+                    ascII += stringToAscII(map.get(obj));
+                }
             }
         }
-
         return ascII;
     }
 
+
     public static long stringToAscII(Object value) {
         long ascII = 0L;
-        String[] v = (String[]) value;
-        String s = String.valueOf(v[0]);
+        String s = value.toString();
         char[] chars = s.toCharArray();
         for (char aChar : chars) {
             ascII += aChar;
         }
-
         return ascII;
     }
 }

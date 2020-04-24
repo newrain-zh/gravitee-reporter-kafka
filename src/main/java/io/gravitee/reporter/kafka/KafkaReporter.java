@@ -78,7 +78,7 @@ public class KafkaReporter extends AbstractService implements Reporter {
         LOGGER.info("reportable start1");
         if (kafkaProducer != null) {
             if (reportable instanceof Log) {
-                Log  log = (Log) reportable;
+                Log log = (Log) reportable;
                 Request clientRequest = log.getClientRequest();
                 Response clientResponse = log.getClientResponse();
                 GatewayLoggerData gatewayLoggerData = new GatewayLoggerData();
@@ -112,6 +112,7 @@ public class KafkaReporter extends AbstractService implements Reporter {
                 LOGGER.info("reportable start3");
                 //获取mac address and accessChannel
                 try {
+
                     Map map1 = mapper.readValue(requestParams, Map.class);
                     System.out.println("map1:" + mapper.writeValueAsString(map1));
                     String macAddress = "";
@@ -122,7 +123,8 @@ public class KafkaReporter extends AbstractService implements Reporter {
                     }
                     gatewayLoggerData.setMacAddress(macAddress);
                     Map accessChannelData = getAccessChannelData(clientRequest, map1);
-                    String accessChannel = getAccessChannel(accessChannelData, 30000);
+
+                    String accessChannel = getAccessChannel(accessChannelData, map1);
                     System.out.println("accessChannel:" + accessChannel);
                     gatewayLoggerData.setAccessChannel(accessChannel);
                     gatewayLoggerData.setWeHotelId(getWehotelId(clientRequest, String.valueOf(map1.get("weHotelId"))));
@@ -132,10 +134,12 @@ public class KafkaReporter extends AbstractService implements Reporter {
                 LOGGER.info("reportable start4");
                 //相应数据处理
                 String body = clientResponse.getBody();
+                gatewayLoggerData.setResponseCode(String.valueOf(clientResponse.getStatus()));
                 gatewayLoggerData.setUsedTimeMS(clientResponse.getHeaders().getFirst("response-time"));
                 Map<String, String> responseMap = new HashMap<>();
                 try {
                     if (isJSONValid2(body)) {
+                        System.out.println("response body:" + body);
                         Map<String, Object> map = mapper.readValue(body, Map.class);
                         if (map.containsKey("code")) {
                             responseMap.put("code", String.valueOf(map.get("code")));
@@ -199,15 +203,15 @@ public class KafkaReporter extends AbstractService implements Reporter {
     }
 
 
-    private String getAccessChannel(Map<String, Object> params, long timeout) {
+    private String getAccessChannel(Map<String, Object> params, Map<String, Object> all) {
         Signature signature = new Signature();
-        signature.setParameterMap(params);
+        signature.setParameterMap(all);
         signature.setAppCode(String.valueOf(params.get("appcode")));
         signature.setSignatureString(String.valueOf(params.get("sign")));
         signature.setUserId(String.valueOf(params.get("userId")));
         signature.setClientVersion(String.valueOf(params.get("clientVersion")));
         try {
-            return new SignatureChecker().getChannel(signature, timeout);
+            return new SignatureChecker().getChannel(signature);
         } catch (Exception e) {
             return "";
         }

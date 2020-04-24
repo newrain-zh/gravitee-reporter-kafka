@@ -33,9 +33,11 @@ public class Signature {
     public Signature() {
     }
 
-    public String getTimeCode(long timeout) throws Exception {
-        return SecretUtil.decodeTime(this.getAppCode(), timeout);
+
+    public String getTimeCode() throws Exception {
+        return SecretUtil.decodeTime(this.getAppCode());
     }
+
 
     public Long getParamsTotalUniCode() {
         return SecretUtil.decodeASCII(this.parameterMap);

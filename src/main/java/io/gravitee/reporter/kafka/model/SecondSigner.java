@@ -27,8 +27,8 @@ public class SecondSigner implements Signable {
     }
 
     @Override
-    public String sign(Signature material, long timeout) throws Exception {
-        return MD5Utils.generatePassword(next.sign(material, timeout) + material.getTimeCode(timeout) + material.getParamsTotalUniCode() + material.getUUID() + material.getLocation());
+    public String sign(Signature material) throws Exception {
+        return MD5Utils.generatePassword(this.next.sign(material) + material.getTimeCode() + material.getParamsTotalUniCode() + material.getUUID() + material.getLocation());
     }
 
 }

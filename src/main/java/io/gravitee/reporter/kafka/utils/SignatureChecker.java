@@ -47,7 +47,7 @@ public class SignatureChecker {
         }
     }
 
-    public String getChannel(Signature signature, long timeout) throws Exception {
+    public String getChannel(Signature signature) throws Exception {
         if (!signature.checkIsIllegalArgument()) {
             throw new IllegalArgumentException("userId or appCode or paramsMap is null");
         } else {
@@ -55,17 +55,18 @@ public class SignatureChecker {
             Signable signer = new SecondSigner(firstSigner);
             Channel[] var4 = Channel.values();
             int var5 = var4.length;
-            for (Channel c : var4) {
+            for (int var6 = 0; var6 < var5; ++var6) {
+                Channel c = var4[var6];
                 signature.setChannelSecurityKey(c.getSecurityKey());
                 try {
-                    if (signature.getSignatureString().equals(signer.sign(signature, timeout))) {
+                    System.out.println(signer.sign(signature));
+                    if (signature.getSignatureString().equals(signer.sign(signature))) {
                         return c.name();
                     }
                 } catch (Exception var9) {
                     var9.printStackTrace();
                 }
             }
-
             throw new IllegalArgumentException("Illlegal Channel");
         }
     }
@@ -77,7 +78,7 @@ public class SignatureChecker {
         int var7 = var6.length;
         for (Channel c : var6) {
             signature.setChannelSecurityKey(c.getSecurityKey());
-            if (signature.getSignatureString().equals(signer.sign(signature, timeout))) {
+            if (signature.getSignatureString().equals(signer.sign(signature))) {
                 request.headers().add("accessChannel", c.getCnName());
                 return Boolean.TRUE;
             }
