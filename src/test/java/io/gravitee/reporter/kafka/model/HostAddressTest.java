@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,6 +15,7 @@
  */
 package io.gravitee.reporter.kafka.model;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.gravitee.reporter.api.common.Request;
 import io.gravitee.reporter.kafka.utils.AesUtil;
@@ -25,10 +26,7 @@ import org.junit.experimental.theories.suppliers.TestedOn;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -151,7 +149,7 @@ public class HostAddressTest {
     }
 
     @Test
-    public void test22(){
+    public void test22() {
         stringToAscII("5.0.2");
     }
 
@@ -168,4 +166,29 @@ public class HostAddressTest {
         return ascII;
     }
 
+    @Test
+    public void test5() {
+        String params = getParams("http://172.25.102.129:8082/demo/test.json?appcode=5996d34169cb826b79b6097e46cf061c35fcbf5354d1914950c1214efec09a1b14e7c172bfac375ac0b1601570a00d38783da4f4a3f74434ebcba816cf995df6&appearscycle=1&channelId=309488&clientVersion=5.0.2&deviceCode=68F336FE-94B9-4232-BE69-AD438FAEA824&deviceSystem=ios&deviceType=iPhone11,6&language=ZH&macAddress=02:00:00:00:00:00&os=iOS&sid=309488&sign=1EB8DFEF743D25386F1723E96596D26D&systemVersion=13.3.1&timestamp=1587715051020&userId=0&weHotelId=0");
+        System.out.println(params);
+    }
+
+    private String getParams(String url) {
+        System.out.println("url:" + url);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String s1 = url.substring(url.indexOf("?") + 1);
+        String[] split = s1.split("&");
+        Map<String, String> resultMap = new HashMap<>(split.length);
+        System.out.println("{split:" + Arrays.toString(split) + "}");
+        for (String s : split) {
+            String key = s.substring(0, s.indexOf("="));
+            String value = s.substring(s.indexOf("=") + 1);
+            resultMap.put(key, value);
+        }
+        try {
+            return objectMapper.writeValueAsString(resultMap);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

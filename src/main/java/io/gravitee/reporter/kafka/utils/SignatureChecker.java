@@ -59,7 +59,6 @@ public class SignatureChecker {
                 Channel c = var4[var6];
                 signature.setChannelSecurityKey(c.getSecurityKey());
                 try {
-                    System.out.println(signer.sign(signature));
                     if (signature.getSignatureString().equals(signer.sign(signature))) {
                         return c.name();
                     }

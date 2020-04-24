@@ -106,9 +106,9 @@ public class KafkaReporter extends AbstractService implements Reporter {
                     } else if (contentType.contains("application/json")) {
                         requestParams = clientRequest.getBody();
                     }
-                    System.out.println("requestParams: " + requestParams);
                     gatewayLoggerData.setRequstData(clientRequest.getBody());
                 }
+                System.out.println("requestParams: " + requestParams);
                 LOGGER.info("reportable start3");
                 //获取mac address and accessChannel
                 try {
@@ -226,7 +226,7 @@ public class KafkaReporter extends AbstractService implements Reporter {
     private String getParams(String url) {
         System.out.println("url:" + url);
         ObjectMapper objectMapper = new ObjectMapper();
-        String s1 = url.substring(url.indexOf("?") + 1, url.length() - 1);
+        String s1 = url.substring(url.indexOf("?") + 1);
         String[] split = s1.split("&");
         Map<String, String> resultMap = new HashMap<>(split.length);
         System.out.println("{split:" + Arrays.toString(split) + "}");
