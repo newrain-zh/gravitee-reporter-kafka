@@ -43,10 +43,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 
 public class KafkaReporter extends AbstractService implements Reporter {
@@ -75,7 +74,6 @@ public class KafkaReporter extends AbstractService implements Reporter {
 
     @Override
     public void report(Reportable reportable) {
-        LOGGER.info("reportable start1");
         if (kafkaProducer != null) {
             if (reportable instanceof Log) {
                 Log log = (Log) reportable;
@@ -93,10 +91,21 @@ public class KafkaReporter extends AbstractService implements Reporter {
                 String requestParams = "";
                 LOGGER.info("reportable start2");
                 if ("GET".equals(method.name())) {
-                    gatewayLoggerData.setRequestUrl(clientRequest.getUri().substring(0,clientRequest.getUri().indexOf("?")));
-                    requestParams = getParams(clientRequest.getUri());
+                    String s = clientRequest.getUri().replaceAll("%(?![0-9a-fA-F]{2})", "%25");
+                    try {
+                        String decode = URLDecoder.decode(s, "UTF-8");
+                        requestParams = getParams(decode);
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
+                    if (clientRequest.getUri().contains("?")) {
+                        gatewayLoggerData.setRequestUrl(clientRequest.getUri().substring(0, clientRequest.getUri().indexOf("?")));
+                    } else {
+                        gatewayLoggerData.setRequestUrl(clientRequest.getUri());
+                    }
                     gatewayLoggerData.setRequstData(requestParams);
                 } else if ("POST".equals(method.name())) {
+                    gatewayLoggerData.setRequestUrl(clientRequest.getUri());
                     String contentType = clientRequest.getHeaders().getFirst("Content-Type");
                     //表单请求
                     if (contentType.contains("application/x-www-form-urlencoded")) {
@@ -108,7 +117,18 @@ public class KafkaReporter extends AbstractService implements Reporter {
                     }
                     gatewayLoggerData.setRequstData(clientRequest.getBody());
                 }
+                System.out.println("url:" + clientRequest.getUri());
                 System.out.println("requestParams: " + requestParams);
+                Set<Map.Entry<String, List<String>>> entries = clientRequest.getHeaders().entrySet();
+                Map<String, String> headers = new HashMap<>();
+                clientRequest.getHeaders().forEach((k, v) -> {
+                    headers.put(k, v.get(0));
+                });
+                try {
+                    System.out.println("header:" + mapper.writeValueAsString(headers));
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
                 LOGGER.info("reportable start3");
                 //获取mac address and accessChannel
                 try {
@@ -231,9 +251,14 @@ public class KafkaReporter extends AbstractService implements Reporter {
         Map<String, String> resultMap = new HashMap<>(split.length);
         System.out.println("{split:" + Arrays.toString(split) + "}");
         for (String s : split) {
-            String key = s.substring(0, s.indexOf("="));
-            String value = s.substring(s.indexOf("=") + 1);
-            resultMap.put(key, value);
+            if (s.contains("=")) {
+                String key = s.substring(0, s.indexOf("="));
+                String value = s.substring(s.indexOf("=") + 1);
+                resultMap.put(key, value);
+            } else {
+                resultMap.put(s, "");
+            }
+
         }
         try {
             return objectMapper.writeValueAsString(resultMap);

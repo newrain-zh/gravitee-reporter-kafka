@@ -96,7 +96,7 @@ public class KafkaReporterIT {
         Request request = new Request();
         request.setHeaders(headers);
         request.setMethod(HttpMethod.GET);
-        request.setUri("http://172.21.221.62:8082/demo-api/test.json?appcode=5996d34169cb826b79b6097e46cf061c35fcbf5354d1914950c1214efec09a1b14e7c172bfac375ac0b1601570a00d38783da4f4a3f74434ebcba816cf995df6&appearscycle=1&channelId=309488&clientVersion=5.0.2&deviceCode=68F336FE-94B9-4232-BE69-AD438FAEA824&deviceSystem=ios&deviceType=iPhone11,6&language=ZH&macAddress=02:00:00:00:00:00&os=iOS&sid=309488&sign=1EB8DFEF743D25386F1723E96596D26D&systemVersion=13.3.1&timestamp=1587715051020&userId=0&weHotelId=0");
+        request.setUri("http://172.21.221.62:8082/demo-api/test.json?weHotelId&userId=0&latlng=31.244351042232392,121.50303128227807&clientVersion=5.0.3&deviceType=CLT-AL00&deviceCode=00000000-1940-9668-0000-000042d74f33&systemVersion=29&sellerId=415153&sid=415153&umChannel=415153&os=android&deviceSystem=android&deviceId=00000000-1940-9668-0000-000042d74f33&sign=1EB52E5AB4F3A8C22ABFBB4C807217BD&appcode=7c2fc52429d54efc88764946203870d79ce1c8510c1725c697a5eeca0bb71db9d2f254afb13fcb9385d12a827991476d75a16dbe75da34ba0cce741f602d1ec213f21a78c9ae90b63f45e649790bbc712add79393add8aaf39e29bbd5212ce42");
         request.setBody("");
 
         Response response = new Response();
