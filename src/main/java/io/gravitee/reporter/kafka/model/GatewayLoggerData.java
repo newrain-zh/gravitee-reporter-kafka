@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,6 +15,8 @@
  */
 
 package io.gravitee.reporter.kafka.model;
+
+import java.sql.Timestamp;
 
 /**
  * 网关日志打印使用，监控所有请求
@@ -33,6 +35,11 @@ public class GatewayLoggerData {
     private String accessChannel;//客户端渠道，如锦江android
     private String weHotelId = "0";//会员id
     private String traceId;
+
+    private String message;
+    private String loggerLevel = "";
+    private Timestamp timestamp;
+    private String env;
 
     public String getRequestUrl() {
         return requestUrl;
@@ -122,4 +129,35 @@ public class GatewayLoggerData {
         this.traceId = traceId;
     }
 
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public String getLoggerLevel() {
+        return loggerLevel;
+    }
+
+    public void setLoggerLevel(String loggerLevel) {
+        this.loggerLevel = loggerLevel;
+    }
+
+    public Timestamp getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Timestamp timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public String getEnv() {
+        return env;
+    }
+
+    public void setEnv(String env) {
+        this.env = env;
+    }
 }

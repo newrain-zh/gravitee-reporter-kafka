@@ -45,6 +45,7 @@ import org.springframework.util.StringUtils;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.sql.Timestamp;
 import java.util.*;
 
 
@@ -175,6 +176,9 @@ public class KafkaReporter extends AbstractService implements Reporter {
                     } else {
                         gatewayLoggerData.setResponseData(body);
                     }
+                    gatewayLoggerData.setEnv("uat");
+                    gatewayLoggerData.setLoggerLevel("info");
+                    gatewayLoggerData.setTimestamp(new Timestamp(System.currentTimeMillis()));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
