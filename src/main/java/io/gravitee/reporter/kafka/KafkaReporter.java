@@ -29,6 +29,7 @@ import io.gravitee.reporter.api.log.Log;
 import io.gravitee.reporter.api.monitor.Monitor;
 import io.gravitee.reporter.kafka.config.KafkaConfiguration;
 import io.gravitee.reporter.kafka.model.GatewayLoggerData;
+import io.gravitee.reporter.kafka.model.GatewayLoggerMsgReq;
 import io.gravitee.reporter.kafka.model.MessageType;
 import io.gravitee.reporter.kafka.utils.AesUtil;
 import io.gravitee.reporter.kafka.utils.Signature;
@@ -176,24 +177,24 @@ public class KafkaReporter extends AbstractService implements Reporter {
                     } else {
                         gatewayLoggerData.setResponseData(body);
                     }
-                    gatewayLoggerData.setEnv("uat");
-                    gatewayLoggerData.setLoggerLevel("info");
-                    gatewayLoggerData.setTimestamp(new Timestamp(System.currentTimeMillis()));
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                GatewayLoggerMsgReq loggerMessage = new GatewayLoggerMsgReq("info", "uat", gatewayLoggerData);
+                loggerMessage.setTimestamp(new Timestamp(System.currentTimeMillis()));
                 LOGGER.info("reportable start5");
-                KafkaProducerRecord<String, JsonObject> record = KafkaProducerRecord.create(kafkaConfiguration.getKafkaTopic(), JsonObject.mapFrom(gatewayLoggerData));
+                KafkaProducerRecord<String, JsonObject> record = KafkaProducerRecord.create(kafkaConfiguration.getKafkaTopic(), JsonObject.mapFrom(loggerMessage));
                 kafkaProducer.write(record, done -> {
                     String message;
                     if (done.succeeded()) {
                         LOGGER.info("reportable start6");
                         RecordMetadata recordMetadata = done.result();
                         message = String.format("Topic=%s partition=%s offset=%s message %s",
-                                record.value(),
                                 recordMetadata.getTopic(),
                                 recordMetadata.getPartition(),
-                                recordMetadata.getOffset());
+                                recordMetadata.getOffset(),
+                                record.value());
                     } else {
                         message = String.format("Message %s not written on topic=%s", record.value(), kafkaConfiguration.getKafkaTopic());
                     }
