@@ -13,7 +13,26 @@ reporters:
         krb5:
           conf: krb5.conf
     settings:
-      acks: 1
+      acks: 0
+      retries: 0
+      max:
+        block:
+          ms: 100
+      interceptor:
+        classes: 1000
+      compression:
+        type: snappy
+      send:
+        buffer:
+          bytes: 1048576
+      linger:
+        ms: 2000
+      batch:
+        size: 8192
+      buffer:
+        memory: 33554432
+
+
 #      security:
 #        protocol: SASL_SSL
 #      sasl:

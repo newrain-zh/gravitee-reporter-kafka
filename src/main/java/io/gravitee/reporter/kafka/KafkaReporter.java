@@ -28,7 +28,7 @@ import io.gravitee.reporter.api.http.Metrics;
 import io.gravitee.reporter.api.log.Log;
 import io.gravitee.reporter.api.monitor.Monitor;
 import io.gravitee.reporter.kafka.config.KafkaConfiguration;
-import io.gravitee.reporter.kafka.model.GatewayLoggerData;
+import io.gravitee.reporter.kafka.model.GatewayLoggerMsgReq;
 import io.gravitee.reporter.kafka.model.MessageType;
 import io.gravitee.reporter.kafka.utils.AesUtil;
 import io.gravitee.reporter.kafka.utils.Signature;
@@ -44,7 +44,7 @@ import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.util.Arrays;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -75,27 +75,25 @@ public class KafkaReporter extends AbstractService implements Reporter {
 
     @Override
     public void report(Reportable reportable) {
-        LOGGER.info("reportable start1");
         if (kafkaProducer != null) {
             if (reportable instanceof Log) {
                 Log log = (Log) reportable;
                 Request clientRequest = log.getClientRequest();
                 Response clientResponse = log.getClientResponse();
-                GatewayLoggerData gatewayLoggerData = new GatewayLoggerData();
+                GatewayLoggerMsgReq gatewayLoggerData = new GatewayLoggerMsgReq("info", "", "uat");
                 HttpMethod method = clientRequest.getMethod();
-
                 //获取IP
                 gatewayLoggerData.setRequestIp(getIp(clientRequest));
                 gatewayLoggerData.setRequestMethod(clientRequest.getMethod().name());
                 gatewayLoggerData.setTraceId(clientRequest.getHeaders().getFirst("X-Gravitee-Transaction-Id"));
-
+                gatewayLoggerData.setRequestUrl(URLDecoder.decode(clientRequest.getUri()));
                 ObjectMapper mapper = new ObjectMapper();
                 String requestParams = "";
-                LOGGER.info("reportable start2");
                 if ("GET".equals(method.name())) {
-                    gatewayLoggerData.setRequestUrl(clientRequest.getUri().substring(0,clientRequest.getUri().indexOf("?")));
-                    requestParams = getParams(clientRequest.getUri());
-                    gatewayLoggerData.setRequstData(requestParams);
+                    requestParams = getParams(URLDecoder.decode(clientRequest.getUri()));
+                    if (!StringUtils.isEmpty(requestParams)) {
+                        gatewayLoggerData.setRequstData(requestParams);
+                    }
                 } else if ("POST".equals(method.name())) {
                     String contentType = clientRequest.getHeaders().getFirst("Content-Type");
                     //表单请求
@@ -108,13 +106,11 @@ public class KafkaReporter extends AbstractService implements Reporter {
                     }
                     gatewayLoggerData.setRequstData(clientRequest.getBody());
                 }
-                System.out.println("requestParams: " + requestParams);
-                LOGGER.info("reportable start3");
                 //获取mac address and accessChannel
+                Map map1 = new HashMap(0);
                 try {
 
-                    Map map1 = mapper.readValue(requestParams, Map.class);
-                    System.out.println("map1:" + mapper.writeValueAsString(map1));
+                    map1 = mapper.readValue(requestParams, Map.class);
                     String macAddress = "";
                     if (!StringUtils.isEmpty(map1.get("macAddress"))) {
                         macAddress = URLDecoder.decode(String.valueOf(map1.get("macAddress")));
@@ -123,47 +119,54 @@ public class KafkaReporter extends AbstractService implements Reporter {
                     }
                     gatewayLoggerData.setMacAddress(macAddress);
                     Map accessChannelData = getAccessChannelData(clientRequest, map1);
-
                     String accessChannel = getAccessChannel(accessChannelData, map1);
-                    System.out.println("accessChannel:" + accessChannel);
                     gatewayLoggerData.setAccessChannel(accessChannel);
-                    gatewayLoggerData.setWeHotelId(getWehotelId(clientRequest, String.valueOf(map1.get("weHotelId"))));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                LOGGER.info("reportable start4");
+              /*  LOGGER.info("输出response头部 start =======");
+                Set<String> strings = clientResponse.getHeaders().keySet();
+                strings.forEach(k -> {
+                    System.out.println();
+                    LOGGER.info(k + ":" + clientResponse.getHeaders().getFirst(k));
+                });*/
+                String weHotelId = getWehotelId(clientRequest, clientResponse, String.valueOf(map1.get("weHotelId")));
+                gatewayLoggerData.setWeHotelId(weHotelId);
                 //相应数据处理
                 String body = clientResponse.getBody();
                 gatewayLoggerData.setResponseCode(String.valueOf(clientResponse.getStatus()));
                 gatewayLoggerData.setUsedTimeMS(clientResponse.getHeaders().getFirst("response-time"));
                 Map<String, String> responseMap = new HashMap<>();
                 try {
-                    if (isJSONValid2(body)) {
-                        System.out.println("response body:" + body);
-                        Map<String, Object> map = mapper.readValue(body, Map.class);
-                        if (map.containsKey("code")) {
-                            responseMap.put("code", String.valueOf(map.get("code")));
-                        } else if (map.containsKey("msgCode")) {
-                            responseMap.put("code", String.valueOf(map.get("msgCode")));
+                    if (!StringUtils.isEmpty(body)) {
+                        if (isJSONValid2(body)) {
+                            Map<String, Object> map = mapper.readValue(body, Map.class);
+                            if (map.containsKey("code")) {
+                                responseMap.put("code", String.valueOf(map.get("code")));
+                            } else if (map.containsKey("msgCode")) {
+                                responseMap.put("code", String.valueOf(map.get("msgCode")));
+                            }
+                            if (map.containsKey("msg")) {
+                                responseMap.put("msg", String.valueOf(map.get("msg")));
+                            } else if (map.containsKey("message")) {
+                                responseMap.put("msg", String.valueOf(map.get("message")));
+                            }
+                            gatewayLoggerData.setResponseData(mapper.writeValueAsString(responseMap));
+                        } else {
+                            gatewayLoggerData.setResponseData(body);
                         }
-                        if (map.containsKey("msg")) {
-                            responseMap.put("msg", String.valueOf(map.get("msg")));
-                        } else if (map.containsKey("message")) {
-                            responseMap.put("msg", String.valueOf(map.get("message")));
-                        }
-                        gatewayLoggerData.setResponseData(mapper.writeValueAsString(responseMap));
-                    } else {
-                        gatewayLoggerData.setResponseData(body);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                LOGGER.info("reportable start5");
+                gatewayLoggerData.setEnv("uat");
+                gatewayLoggerData.setTimestamp(new Timestamp(System.currentTimeMillis()));
+                gatewayLoggerData.setLoggerLevel("info");
+                gatewayLoggerData.setMessage("");
                 KafkaProducerRecord<String, JsonObject> record = KafkaProducerRecord.create(kafkaConfiguration.getKafkaTopic(), JsonObject.mapFrom(gatewayLoggerData));
                 kafkaProducer.write(record, done -> {
                     String message;
                     if (done.succeeded()) {
-                        LOGGER.info("reportable start6");
                         RecordMetadata recordMetadata = done.result();
                         message = String.format("Topic=%s partition=%s offset=%s message %s",
                                 record.value(),
@@ -224,12 +227,16 @@ public class KafkaReporter extends AbstractService implements Reporter {
      * @param url
      */
     private String getParams(String url) {
-        System.out.println("url:" + url);
+        if (!url.contains("?")) {
+            return "";
+        }
         ObjectMapper objectMapper = new ObjectMapper();
         String s1 = url.substring(url.indexOf("?") + 1);
         String[] split = s1.split("&");
+        if (split.length == 0) {
+            return "";
+        }
         Map<String, String> resultMap = new HashMap<>(split.length);
-        System.out.println("{split:" + Arrays.toString(split) + "}");
         for (String s : split) {
             String key = s.substring(0, s.indexOf("="));
             String value = s.substring(s.indexOf("=") + 1);
@@ -256,7 +263,6 @@ public class KafkaReporter extends AbstractService implements Reporter {
         ObjectMapper objectMapper = new ObjectMapper();
         String[] split = body.split("&");
         Map<String, String> resultMap = new HashMap<>(split.length);
-        System.out.println("{split:" + Arrays.toString(split) + "}");
         for (String s : split) {
             String key = s.substring(0, s.indexOf("="));
             String value = s.substring(s.indexOf("=") + 1);
@@ -328,13 +334,17 @@ public class KafkaReporter extends AbstractService implements Reporter {
         return map;
     }
 
-    private String getWehotelId(Request request, String weHotelId) {
+    private String getWehotelId(Request request, Response response, String weHotelId) {
         if (StringUtils.isEmpty(weHotelId)) {
             return "0";
         }
         weHotelId = request.getHeaders().getFirst("weHotelId");
-        if (StringUtils.isEmpty(weHotelId)) {
-            return AesUtil.decrypts(weHotelId);
+        if (!StringUtils.isEmpty(weHotelId)) {
+            return weHotelId;
+        }
+        weHotelId = response.getHeaders().getFirst("mid");
+        if (!StringUtils.isEmpty(weHotelId)) {
+            return weHotelId;
         }
         return AesUtil.decrypts(weHotelId);
     }

@@ -15,6 +15,8 @@
  */
 package io.gravitee.reporter.kafka;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.gravitee.common.http.HttpHeaders;
 import io.gravitee.common.http.HttpMethod;
 import io.gravitee.reporter.api.common.Request;
@@ -38,14 +40,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ResourceUtils;
+import org.springframework.util.StringUtils;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 import static org.awaitility.Awaitility.await;
@@ -96,7 +97,7 @@ public class KafkaReporterIT {
         Request request = new Request();
         request.setHeaders(headers);
         request.setMethod(HttpMethod.GET);
-        request.setUri("http://172.21.221.62:8082/demo-api/test.json?appcode=5996d34169cb826b79b6097e46cf061c35fcbf5354d1914950c1214efec09a1b14e7c172bfac375ac0b1601570a00d38783da4f4a3f74434ebcba816cf995df6&appearscycle=1&channelId=309488&clientVersion=5.0.2&deviceCode=68F336FE-94B9-4232-BE69-AD438FAEA824&deviceSystem=ios&deviceType=iPhone11,6&language=ZH&macAddress=02:00:00:00:00:00&os=iOS&sid=309488&sign=1EB8DFEF743D25386F1723E96596D26D&systemVersion=13.3.1&timestamp=1587715051020&userId=0&weHotelId=0");
+        request.setUri("http://172.21.221.62:8082/cli/app/frame/v1/fdetail?appcode=05a70406a1822562b2fa979bf707c0bdd78aaf3c100ec4684c0fdfb36682ffbef206535807908e01d5ab7720f40a9eb704419d845c559ed4b6c90b7aa3213692&clientVersion=5.0.3&deviceCode=CE46DC1C-30D3-48E9-9B08-BAD1C00FCA68&deviceSystem=ios&deviceType=iPhone9%2C1&frmCode=feed_slide&language=ZH&macAddress=02%3A00%3A00%3A00%3A00%3A00&os=iOS&page=6&pageSize=20&sid=415153&sign=BD09CFA639990552C9E26AE05165E311&systemVersion=13.3.1&timestamp=1589178583588&userId=0&weHotelId=0");
         request.setBody("");
 
         Response response = new Response();
@@ -140,4 +141,42 @@ public class KafkaReporterIT {
         });
         return () -> logs.size();
     }
+
+
+    @Test
+    public void testGetParams(){
+        String params = getParams("api/v1?appcode=1");
+        System.out.println(params);
+        String s = "application/json;charset=UTF-8";
+        System.out.println(s.contains("application/json"));
+    }
+
+
+    private String getParams(String url) {
+        if (!url.contains("?")){
+            return "";
+        }
+        System.out.println("url:" + url);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String s1 = url.substring(url.indexOf("?") + 1);
+        String[] split = s1.split("&");
+        if (split.length == 0) {
+            return "";
+        }
+        Map<String, String> resultMap = new HashMap<>(split.length);
+        LOGGER.info("url:{}",url);
+        LOGGER.info("split:{}", Arrays.toString(split));
+        for (String s : split) {
+            String key = s.substring(0, s.indexOf("="));
+            String value = s.substring(s.indexOf("=") + 1);
+            resultMap.put(key, value);
+        }
+        try {
+            return objectMapper.writeValueAsString(resultMap);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }
