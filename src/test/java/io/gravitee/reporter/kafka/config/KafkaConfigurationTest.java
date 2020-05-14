@@ -55,19 +55,19 @@ public class KafkaConfigurationTest {
     @Test
     public void shouldLoadProperties() throws IOException {
         assertThat(kafkaConfiguration.getKrb5_conf()).isEqualTo("krb5.conf");
-        assertThat(kafkaConfiguration.getKafkaTopic()).isEqualTo("gateway_log_topic");
+        assertThat(kafkaConfiguration.getKafkaTopic()).isEqualTo("mobilegateway");
         assertThat(kafkaConfiguration.getHostsAddresses()).isNotNull();
-        assertThat(kafkaConfiguration.getHostsAddresses()).extracting("hostname", "port").containsExactly(tuple("node1", 6062), tuple("node2", 6062));
+        assertThat(kafkaConfiguration.getHostsAddresses()).extracting("hostname", "port").containsExactly(tuple("172.25.32.95", 9092), tuple("172.25.32.96", 9092), tuple("172.25.32.97", 9092));
         assertThat(kafkaConfiguration.getKafkaConfigMap()).isNotNull();
         assertThat(kafkaConfiguration.getMessageTypes()).isNotNull();
-        assertThat(kafkaConfiguration.getMessageTypes()).containsExactly(MessageType.getByName("log"), MessageType.getByName("monitor"));
-        assertThat(kafkaConfiguration.getKafkaConfigMap().get(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG)).isEqualTo("node1:6062,node2:6062");
+        assertThat(kafkaConfiguration.getMessageTypes()).containsExactly(MessageType.getByName("log"), MessageType.getByName("request"));
+        assertThat(kafkaConfiguration.getKafkaConfigMap().get(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG)).isEqualTo("172.25.32.95:9092,172.25.32.96:9092,172.25.32.97:9092");
         assertThat(kafkaConfiguration.getKafkaConfigMap().get(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG)).isEqualTo(JsonObjectSerializer.class.getCanonicalName());
         assertThat(kafkaConfiguration.getKafkaConfigMap().get(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG)).isEqualTo(JsonObjectSerializer.class.getCanonicalName());
-        assertThat(kafkaConfiguration.getKafkaConfigMap().get("acks")).isEqualTo("1");
-        assertThat(kafkaConfiguration.getKafkaConfigMap().get("security.protocol")).isEqualTo("SASL_SSL");
-        assertThat(kafkaConfiguration.getKafkaConfigMap().get("sasl.jaas.config")).isEqualTo("com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true refreshKrb5Config=true storeKey=true serviceName=\"kafka\" keyTab=\"key.keytab\" principal=\"foo@DOMAIN.COM\";");
-        assertThat(System.getProperty("java.security.krb5.conf")).isEqualTo("krb5.conf");
+        assertThat(kafkaConfiguration.getKafkaConfigMap().get("acks")).isEqualTo("0");
+        // assertThat(kafkaConfiguration.getKafkaConfigMap().get("security.protocol")).isEqualTo("SASL_SSL");
+        // assertThat(kafkaConfiguration.getKafkaConfigMap().get("sasl.jaas.config")).isEqualTo("com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true refreshKrb5Config=true storeKey=true serviceName=\"kafka\" keyTab=\"key.keytab\" principal=\"foo@DOMAIN.COM\";");
+        // assertThat(System.getProperty("java.security.krb5.conf")).isEqualTo("krb5.conf");
     }
     @Test
     public void shouldLoadSettingsWithUnderscore()  {

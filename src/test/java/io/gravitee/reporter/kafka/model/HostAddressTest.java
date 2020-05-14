@@ -43,18 +43,19 @@ public class HostAddressTest {
     @Test
     public void shouldStringifySingleHostAddress() {
         List<HostAddress> hostAddressList = new ArrayList<HostAddress>();
-        hostAddressList.add(new HostAddress("node1", 6062));
+        hostAddressList.add(new HostAddress("172.25.32.95", 9092));
         String str = HostAddress.stringifyHostAddresses(hostAddressList);
-        assertThat("node1:6062").isEqualTo(str);
+        assertThat("172.25.32.95:9092").isEqualTo(str);
     }
 
     @Test
     public void shouldStringifyHostAddressList() {
         List<HostAddress> hostAddressList = new ArrayList<HostAddress>();
-        hostAddressList.add(new HostAddress("node1", 6062));
-        hostAddressList.add(new HostAddress("node2", 6063));
+        hostAddressList.add(new HostAddress("172.25.32.95", 9092));
+        hostAddressList.add(new HostAddress("172.25.32.96", 9092));
+        hostAddressList.add(new HostAddress("172.25.32.97", 9092));
         String str = HostAddress.stringifyHostAddresses(hostAddressList);
-        assertThat("node1:6062,node2:6063").isEqualTo(str);
+        assertThat("172.25.32.95:9092,172.25.32.96:9092,172.25.32.97:9092").isEqualTo(str);
     }
 
 
@@ -154,14 +155,11 @@ public class HostAddressTest {
     }
 
     public static long stringToAscII(Object value) {
-        long ascII = 0;
-        String[] v = (String[]) value;
-        String s = String.valueOf(v[0]);
-        //把字符中转换为字符数组
+        long ascII = 0L;
+        String s = value.toString();
         char[] chars = s.toCharArray();
-        //输出结果
         for (char aChar : chars) {
-            ascII += (int) aChar;
+            ascII += aChar;
         }
         return ascII;
     }
