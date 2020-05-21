@@ -179,4 +179,5 @@ public class KafkaReporterIT {
         return null;
     }
 
+
 }

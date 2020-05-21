@@ -159,7 +159,7 @@ public class KafkaReporter extends AbstractService implements Reporter {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                gatewayLoggerData.setEnv("uat");
+                gatewayLoggerData.setEnv(kafkaConfiguration.getEnv());
                 gatewayLoggerData.setTimestamp(new Timestamp(System.currentTimeMillis()));
                 gatewayLoggerData.setLoggerLevel("info");
                 gatewayLoggerData.setMessage("");
@@ -176,7 +176,7 @@ public class KafkaReporter extends AbstractService implements Reporter {
                     } else {
                         message = String.format("Message %s not written on topic=%s", record.value(), kafkaConfiguration.getKafkaTopic());
                     }
-                    LOGGER.info(message);
+                    LOGGER.debug(message);
                 });
             }
 

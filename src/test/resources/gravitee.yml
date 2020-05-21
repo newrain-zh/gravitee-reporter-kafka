@@ -1,5 +1,6 @@
 reporters:
   kafka:
+    env: green
     topic: mobilegateway
     hosts:
       - 172.25.32.95:9092

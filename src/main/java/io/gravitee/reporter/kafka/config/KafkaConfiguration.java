@@ -20,6 +20,7 @@ import io.gravitee.reporter.kafka.model.HostAddress;
 import io.gravitee.reporter.kafka.model.MessageType;
 import io.vertx.kafka.client.serialization.JsonObjectSerializer;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.util.Assert;
@@ -42,6 +43,10 @@ public class KafkaConfiguration {
 
     @Value("${reporters.kafka.java.security.krb5.conf}")
     private String krb5_conf;
+
+
+    @Value("${reporters.kafka.env}")
+    private String env;
 
     public KafkaConfiguration(ConfigurableEnvironment environment) {
         this.environment = environment;
@@ -136,5 +141,9 @@ public class KafkaConfiguration {
         return key
                 .replaceAll("reporters.kafka.settings.", "")
                 .replaceAll("_", ".");
+    }
+
+    public String getEnv() {
+        return env;
     }
 }
