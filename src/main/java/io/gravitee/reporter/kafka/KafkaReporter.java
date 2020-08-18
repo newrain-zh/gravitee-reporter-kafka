@@ -109,8 +109,9 @@ public class KafkaReporter extends AbstractService implements Reporter {
                 //获取mac address and accessChannel
                 Map map1 = new HashMap(0);
                 try {
-
-                    map1 = mapper.readValue(requestParams, Map.class);
+                    if (!StringUtils.isEmpty(requestParams)) {
+                        map1 = mapper.readValue(requestParams, Map.class);
+                    }
                     String macAddress = "";
                     if (!StringUtils.isEmpty(map1.get("macAddress"))) {
                         macAddress = URLDecoder.decode(String.valueOf(map1.get("macAddress")));
