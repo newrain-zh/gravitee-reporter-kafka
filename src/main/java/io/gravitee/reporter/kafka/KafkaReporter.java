@@ -238,9 +238,11 @@ public class KafkaReporter extends AbstractService implements Reporter {
         }
         Map<String, String> resultMap = new HashMap<>(split.length);
         for (String s : split) {
-            String key = s.substring(0, s.indexOf("="));
-            String value = s.substring(s.indexOf("=") + 1);
-            resultMap.put(key, value);
+            if (!StringUtils.isEmpty(s)) {
+                String key = s.substring(0, s.indexOf("="));
+                String value = s.substring(s.indexOf("=") + 1);
+                resultMap.put(key, value);
+            }
         }
         try {
             return objectMapper.writeValueAsString(resultMap);
@@ -264,9 +266,11 @@ public class KafkaReporter extends AbstractService implements Reporter {
         String[] split = body.split("&");
         Map<String, String> resultMap = new HashMap<>(split.length);
         for (String s : split) {
-            String key = s.substring(0, s.indexOf("="));
-            String value = s.substring(s.indexOf("=") + 1);
-            resultMap.put(key, value);
+            if (!StringUtils.isEmpty(s)) {
+                String key = s.substring(0, s.indexOf("="));
+                String value = s.substring(s.indexOf("=") + 1);
+                resultMap.put(key, value);
+            }
         }
         try {
             return objectMapper.writeValueAsString(resultMap);

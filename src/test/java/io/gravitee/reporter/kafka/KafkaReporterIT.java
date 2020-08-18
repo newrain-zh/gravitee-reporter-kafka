@@ -97,7 +97,7 @@ public class KafkaReporterIT {
         Request request = new Request();
         request.setHeaders(headers);
         request.setMethod(HttpMethod.GET);
-        request.setUri("http://172.21.221.62:8082/cli/app/frame/v1/fdetail?appcode=05a70406a1822562b2fa979bf707c0bdd78aaf3c100ec4684c0fdfb36682ffbef206535807908e01d5ab7720f40a9eb704419d845c559ed4b6c90b7aa3213692&clientVersion=5.0.3&deviceCode=CE46DC1C-30D3-48E9-9B08-BAD1C00FCA68&deviceSystem=ios&deviceType=iPhone9%2C1&frmCode=feed_slide&language=ZH&macAddress=02%3A00%3A00%3A00%3A00%3A00&os=iOS&page=6&pageSize=20&sid=415153&sign=BD09CFA639990552C9E26AE05165E311&systemVersion=13.3.1&timestamp=1589178583588&userId=0&weHotelId=0");
+        request.setUri("/cli/app/frame/v1/jssdk/apiauthors?&deviceType=MI%208&sign=AB09945A1CB677753D0ACEBF51D7A6CD&appcode=bbfcd9fc8dd10d77cb936faf202f05e1940fa2f3055380bfdaddac1861bd8fc2e4053e6e7dfdd1762a30be6e612cceda1acbf76715604f2f33f0cc182856e2ed&deviceCode=00000000-7720-6b4a-ffff-ffffacfd0acc&clientVersion=5.1.1&userId=0&systemVersion=10&sid=306265");
         request.setBody("");
 
         Response response = new Response();
