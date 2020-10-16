@@ -82,7 +82,7 @@ public class KafkaReporter extends AbstractService implements Reporter {
                 Response clientResponse = log.getClientResponse();
                 GatewayLoggerMsgReq gatewayLoggerData = new GatewayLoggerMsgReq("info", "", "uat");
                 HttpMethod method = clientRequest.getMethod();
-                //获取IP
+                LOGGER.info("log start:{}", clientRequest.getUri());
                 gatewayLoggerData.setRequestIp(getIp(clientRequest));
                 gatewayLoggerData.setRequestMethod(clientRequest.getMethod().name());
                 gatewayLoggerData.setTraceId(clientRequest.getHeaders().getFirst("X-Gravitee-Transaction-Id"));
@@ -107,7 +107,7 @@ public class KafkaReporter extends AbstractService implements Reporter {
                     gatewayLoggerData.setRequstData(clientRequest.getBody());
                 }
                 //获取mac address and accessChannel
-                Map map1 = new HashMap(0);
+                Map<String, Object> map1 = new HashMap(0);
                 try {
                     if (!StringUtils.isEmpty(requestParams)) {
                         map1 = mapper.readValue(requestParams, Map.class);
@@ -125,60 +125,33 @@ public class KafkaReporter extends AbstractService implements Reporter {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-              /*  LOGGER.info("输出response头部 start =======");
-                Set<String> strings = clientResponse.getHeaders().keySet();
-                strings.forEach(k -> {
-                    System.out.println();
-                    LOGGER.info(k + ":" + clientResponse.getHeaders().getFirst(k));
-                });*/
                 String weHotelId = getWehotelId(clientRequest, clientResponse, String.valueOf(map1.get("weHotelId")));
                 gatewayLoggerData.setWeHotelId(weHotelId);
                 //相应数据处理
-                String body = clientResponse.getBody();
                 gatewayLoggerData.setResponseCode(String.valueOf(clientResponse.getStatus()));
                 gatewayLoggerData.setUsedTimeMS(clientResponse.getHeaders().getFirst("response-time"));
-                Map<String, String> responseMap = new HashMap<>();
-                try {
-                    if (!StringUtils.isEmpty(body)) {
-                        if (isJSONValid2(body)) {
-                            Map<String, Object> map = mapper.readValue(body, Map.class);
-                            if (map.containsKey("code")) {
-                                responseMap.put("code", String.valueOf(map.get("code")));
-                            } else if (map.containsKey("msgCode")) {
-                                responseMap.put("code", String.valueOf(map.get("msgCode")));
-                            }
-                            if (map.containsKey("msg")) {
-                                responseMap.put("msg", String.valueOf(map.get("msg")));
-                            } else if (map.containsKey("message")) {
-                                responseMap.put("msg", String.valueOf(map.get("message")));
-                            }
-                            gatewayLoggerData.setResponseData(mapper.writeValueAsString(responseMap));
-                        } else {
-                            gatewayLoggerData.setResponseData(body);
-                        }
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                gatewayLoggerData.setResponseData(clientResponse.getBody());
                 gatewayLoggerData.setEnv(kafkaConfiguration.getEnv());
                 gatewayLoggerData.setTimestamp(new Timestamp(System.currentTimeMillis()));
                 gatewayLoggerData.setLoggerLevel("info");
                 gatewayLoggerData.setMessage("");
-                KafkaProducerRecord<String, JsonObject> record = KafkaProducerRecord.create(kafkaConfiguration.getKafkaTopic(), JsonObject.mapFrom(gatewayLoggerData));
-                kafkaProducer.write(record, done -> {
-                    String message;
-                    if (done.succeeded()) {
-                        RecordMetadata recordMetadata = done.result();
-                        message = String.format("Topic=%s partition=%s offset=%s message %s",
-                                record.value(),
-                                recordMetadata.getTopic(),
-                                recordMetadata.getPartition(),
-                                recordMetadata.getOffset());
-                    } else {
-                        message = String.format("Message %s not written on topic=%s", record.value(), kafkaConfiguration.getKafkaTopic());
-                    }
-                    LOGGER.debug(message);
-                });
+                if (kafkaProducer != null) {
+                    KafkaProducerRecord<String, JsonObject> record = KafkaProducerRecord.create(kafkaConfiguration.getKafkaTopic(), JsonObject.mapFrom(gatewayLoggerData));
+                    kafkaProducer.write(record, done -> {
+                        String message;
+                        if (done.succeeded()) {
+                            RecordMetadata recordMetadata = done.result();
+                            message = String.format("Topic=%s partition=%s offset=%s message %s",
+                                    record.value(),
+                                    recordMetadata.getTopic(),
+                                    recordMetadata.getPartition(),
+                                    recordMetadata.getOffset());
+                        } else {
+                            message = String.format("Message %s not written on topic=%s", record.value(), kafkaConfiguration.getKafkaTopic());
+                        }
+                        LOGGER.info(message);
+                    });
+                }
             }
 
         }
@@ -215,7 +188,7 @@ public class KafkaReporter extends AbstractService implements Reporter {
         signature.setUserId(String.valueOf(params.get("userId")));
         signature.setClientVersion(String.valueOf(params.get("clientVersion")));
         try {
-            return new SignatureChecker().getChannel(signature);
+            return SignatureChecker.getChannel(signature);
         } catch (Exception e) {
             return "";
         }

@@ -1,5 +1,5 @@
 reporters:
   kafka:
-    topic: topic
+    topic: my-kafka-topic
     hosts:
-      - localhost:6001
+      - 172.25.32.116:9093

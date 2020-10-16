@@ -47,7 +47,7 @@ public class SignatureChecker {
         }
     }
 
-    public String getChannel(Signature signature) throws Exception {
+    public static String getChannel(Signature signature) throws Exception {
         if (!signature.checkIsIllegalArgument()) {
             throw new IllegalArgumentException("userId or appCode or paramsMap is null");
         } else {

@@ -49,6 +49,6 @@ public class HostAddress {
 
     public static String stringifyHostAddresses(List<HostAddress> hostAddressList) {
         Assert.notNull(hostAddressList, "Host Address argument must not be Null");
-        return hostAddressList.stream().map(s -> s.toString()).collect(Collectors.joining(","));
+        return hostAddressList.stream().map(HostAddress::toString).collect(Collectors.joining(","));
     }
 }

@@ -22,6 +22,7 @@ import io.vertx.kafka.client.producer.KafkaProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
+import org.springframework.util.CollectionUtils;
 
 public class KafkaClientProducerFactory extends AbstractFactoryBean<KafkaProducer> {
 
@@ -43,10 +44,11 @@ public class KafkaClientProducerFactory extends AbstractFactoryBean<KafkaProduce
 
     @Override
     protected KafkaProducer createInstance() throws Exception {
+        if (CollectionUtils.isEmpty(kafkaConfiguration.getKafkaConfigMap())) {
+            return null;
+        }
         KafkaProducer<String, JsonObject> producer = KafkaProducer.create(vertx, kafkaConfiguration.getKafkaConfigMap());
-        producer.exceptionHandler(e -> {
-            LOGGER.error(e.getMessage(), e.getCause());
-        });
+        producer.exceptionHandler(e -> LOGGER.error(e.getMessage(), e.getCause()));
         return producer;
     }
 }

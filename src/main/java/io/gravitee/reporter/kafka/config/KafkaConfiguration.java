@@ -20,16 +20,12 @@ import io.gravitee.reporter.kafka.model.HostAddress;
 import io.gravitee.reporter.kafka.model.MessageType;
 import io.vertx.kafka.client.serialization.JsonObjectSerializer;
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class KafkaConfiguration {
@@ -105,11 +101,11 @@ public class KafkaConfiguration {
         List<HostAddress> res = new ArrayList<>();
 
         while (environment.containsProperty(key)) {
-            res.add(buildHostAddress(environment.getProperty(key)));
+            res.add(buildHostAddress(Objects.requireNonNull(environment.getProperty(key))));
             key = String.format("reporters.kafka.hosts[%s]", res.size());
         }
         if (res.isEmpty()) {
-            throw new IllegalArgumentException("At least one kafka broker node must be specified");
+//            throw new IllegalArgumentException("At least one kafka broker node must be specified");
         }
         return res;
     }
@@ -124,6 +120,9 @@ public class KafkaConfiguration {
 
     private Map<String, String> buildKafkaProducerConfig() {
         Map<String, String> configProducer = new HashMap<>();
+        if (HostAddress.stringifyHostAddresses(getHostsAddresses()).isEmpty()) {
+            return configProducer;
+        }
         configProducer.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, HostAddress.stringifyHostAddresses(getHostsAddresses()));
         configProducer.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, JsonObjectSerializer.class.getCanonicalName());
         configProducer.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonObjectSerializer.class.getCanonicalName());
