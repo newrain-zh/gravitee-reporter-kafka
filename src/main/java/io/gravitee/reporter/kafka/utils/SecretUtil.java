@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 public class SecretUtil {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SecretUtil.class);
+//    private static final Logger LOGGER = LoggerFactory.getLogger(SecretUtil.class);
     private static String key = "mobile_fkel_rrjk";
 
     public SecretUtil() {
@@ -69,21 +69,22 @@ public class SecretUtil {
 
     /**
      * 不做超时校验
+     *
      * @param timeCode
      * @param timeout
      * @return
      */
     public static boolean timeOut(String timeCode, long timeout) {
-        /*Date nowTime = new Date();
+        Date nowTime = new Date();
         if (Math.abs(nowTime.getTime() - Long.parseLong(timeCode)) < timeout) {
             return false;
         } else {
-            LOGGER.error("时间超时,现在服务器时间为:{}({}) 客户端时间为(均为毫秒数):{}({}) 误差为:{}", nowTime.getTime(),
-                    progressTime(String.valueOf(nowTime.getTime())), timeCode, progressTime(timeCode),
-                    Math.abs(nowTime.getTime() - Long.parseLong(timeCode)));
+            System.out.println(progressTime(timeCode));
+//            LOGGER.error("时间超时,现在服务器时间为:{}({}) 客户端时间为(均为毫秒数):{}({}) 误差为:{}", nowTime.getTime(),
+//                    progressTime(String.valueOf(nowTime.getTime())), timeCode, progressTime(timeCode),
+//                    Math.abs(nowTime.getTime() - Long.parseLong(timeCode)));
             return true;
-        }*/
-        return false;
+        }
     }
 
 
@@ -139,5 +140,14 @@ public class SecretUtil {
             ascII += aChar;
         }
         return ascII;
+    }
+
+    public static void main(String[] args) {
+        try {
+            String str = decodeTime("be8bc2af81fce47b6108542b7cf1503774a1528831e9600b211ad01e99ec83fbefe749a6c692cdc7cf03a34b3cd86db9598fcbd747b0feb2069d4efb3d1a2c54");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 }

@@ -82,7 +82,6 @@ public class KafkaReporter extends AbstractService implements Reporter {
                 Response clientResponse = log.getClientResponse();
                 GatewayLoggerMsgReq gatewayLoggerData = new GatewayLoggerMsgReq("info", "", "uat");
                 HttpMethod method = clientRequest.getMethod();
-                LOGGER.info("log start:{}", clientRequest.getUri());
                 gatewayLoggerData.setRequestIp(getIp(clientRequest));
                 gatewayLoggerData.setRequestMethod(clientRequest.getMethod().name());
                 gatewayLoggerData.setTraceId(clientRequest.getHeaders().getFirst("X-Gravitee-Transaction-Id"));
@@ -119,9 +118,10 @@ public class KafkaReporter extends AbstractService implements Reporter {
                         macAddress = clientRequest.getHeaders().getFirst("macAddress");
                     }
                     gatewayLoggerData.setMacAddress(macAddress);
-                    Map accessChannelData = getAccessChannelData(clientRequest, map1);
-                    String accessChannel = getAccessChannel(accessChannelData, map1);
-                    gatewayLoggerData.setAccessChannel(accessChannel);
+//                    Map accessChannelData = getAccessChannelData(clientRequest, map1);
+//                    String accessChannel = getAccessChannel(accessChannelData, map1);
+//                    LOGGER.info("accessChannel:{}", clientRequest.getHeaders().getFirst("accessChannel"));
+                    gatewayLoggerData.setAccessChannel(clientRequest.getHeaders().getFirst("accessChannel"));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -149,7 +149,7 @@ public class KafkaReporter extends AbstractService implements Reporter {
                         } else {
                             message = String.format("Message %s not written on topic=%s", record.value(), kafkaConfiguration.getKafkaTopic());
                         }
-                        LOGGER.info(message);
+//                        LOGGER.info(message);
                     });
                 }
             }
@@ -204,6 +204,7 @@ public class KafkaReporter extends AbstractService implements Reporter {
         if (!url.contains("?")) {
             return "";
         }
+//        LOGGER.info("url:{}", url);
         ObjectMapper objectMapper = new ObjectMapper();
         String s1 = url.substring(url.indexOf("?") + 1);
         String[] split = s1.split("&");
@@ -238,12 +239,17 @@ public class KafkaReporter extends AbstractService implements Reporter {
         }
         ObjectMapper objectMapper = new ObjectMapper();
         String[] split = body.split("&");
+//        LOGGER.info("body:{}", body);
         Map<String, String> resultMap = new HashMap<>(split.length);
         for (String s : split) {
             if (!StringUtils.isEmpty(s)) {
-                String key = s.substring(0, s.indexOf("="));
-                String value = s.substring(s.indexOf("=") + 1);
-                resultMap.put(key, value);
+                if (s.contains("=")) {
+                    String key = s.substring(0, s.indexOf("="));
+                    String value = s.substring(s.indexOf("=") + 1);
+                    resultMap.put(key, value);
+                } else {
+                    resultMap.put(s, "");
+                }
             }
         }
         try {

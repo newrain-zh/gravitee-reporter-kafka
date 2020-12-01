@@ -96,9 +96,9 @@ public class KafkaReporterIT {
 
         Request request = new Request();
         request.setHeaders(headers);
-        request.setMethod(HttpMethod.GET);
-        request.setUri("/cli/app/frame/v1/jssdk/apiauthors?&deviceType=MI%208&sign=AB09945A1CB677753D0ACEBF51D7A6CD&appcode=bbfcd9fc8dd10d77cb936faf202f05e1940fa2f3055380bfdaddac1861bd8fc2e4053e6e7dfdd1762a30be6e612cceda1acbf76715604f2f33f0cc182856e2ed&deviceCode=00000000-7720-6b4a-ffff-ffffacfd0acc&clientVersion=5.1.1&userId=0&systemVersion=10&sid=306265");
-        request.setBody("");
+        request.setMethod(HttpMethod.POST);
+        request.setUri("/cli/app/frame/v1/jssdk/apiauthors?&deviceType=&sign=AB09945A1CB677753D0ACEBF51D7A6CD=&appcode=bbfcd9fc8dd10d77cb936faf202f05e1940fa2f3055380bfdaddac1861bd8fc2e4053e6e7dfdd1762a30be6e612cceda1acbf76715604f2f33f0cc182856e2ed&deviceCode=00000000-7720-6b4a-ffff-ffffacfd0acc&clientVersion=5.1.1&userId=0&systemVersion=10&sid=306265");
+        request.setBody("pageSize=20&pageNum&");
 
         Response response = new Response();
         response.setStatus(201);
@@ -144,16 +144,25 @@ public class KafkaReporterIT {
 
 
     @Test
-    public void testGetParams(){
+    public void testGetParams() {
         String params = getParams("api/v1?appcode=1");
         System.out.println(params);
         String s = "application/json;charset=UTF-8";
         System.out.println(s.contains("application/json"));
     }
 
+    @Test
+    public void testString() {
+        String s = "pageNum";
+        String key = s.substring(0, s.indexOf("="));
+        String value = s.substring(s.indexOf("=") + 1);
+        System.out.println(key);
+        System.out.println(value);
+    }
+
 
     private String getParams(String url) {
-        if (!url.contains("?")){
+        if (!url.contains("?")) {
             return "";
         }
         System.out.println("url:" + url);
@@ -164,7 +173,7 @@ public class KafkaReporterIT {
             return "";
         }
         Map<String, String> resultMap = new HashMap<>(split.length);
-        LOGGER.info("url:{}",url);
+        LOGGER.info("url:{}", url);
         LOGGER.info("split:{}", Arrays.toString(split));
         for (String s : split) {
             String key = s.substring(0, s.indexOf("="));
