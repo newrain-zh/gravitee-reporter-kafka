@@ -16,6 +16,8 @@
 
 package io.gravitee.reporter.kafka.model;
 
+import java.sql.Timestamp;
+
 /**
  * 网关日志打印使用，监控所有请求
  * Created by pan.wu on 2018/10/29.
@@ -33,6 +35,11 @@ public class GatewayLoggerData {
     private String accessChannel;//客户端渠道，如锦江android
     private String weHotelId = "0";//会员id
     private String traceId;
+
+    private String message;
+    private String loggerLevel = "info";
+    private Timestamp timestamp;
+    private String env;
 
     public String getRequestUrl() {
         return requestUrl;

@@ -130,9 +130,9 @@ public class KafkaConfiguration {
         Map<String, Object> settings = EnvironmentUtils.getPropertiesStartingWith(environment, "reporters.kafka.settings");
         configProducer.putAll(settings.entrySet().stream().collect(Collectors.toMap(e -> buildkafkaKey(e.getKey()), e -> e.getValue().toString())));
 
-        if (!StringUtils.isEmpty(krb5_conf)) {
+       /* if (!StringUtils.isEmpty(krb5_conf)) {
             System.setProperty("java.security.krb5.conf", krb5_conf);
-        }
+        }*/
         return configProducer;
     }
 

@@ -43,6 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.sql.Timestamp;
 import java.util.HashMap;
@@ -94,6 +95,7 @@ public class KafkaReporter extends AbstractService implements Reporter {
                         gatewayLoggerData.setRequstData(requestParams);
                     }
                 } else if ("POST".equals(method.name())) {
+                    gatewayLoggerData.setRequestUrl(clientRequest.getUri());
                     String contentType = clientRequest.getHeaders().getFirst("Content-Type");
                     //表单请求
                     if (contentType.contains("application/x-www-form-urlencoded")) {
