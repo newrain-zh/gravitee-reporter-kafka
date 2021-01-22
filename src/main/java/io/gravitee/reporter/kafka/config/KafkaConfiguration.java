@@ -114,7 +114,7 @@ public class KafkaConfiguration {
         Assert.isTrue(serializedHost.contains(KafkaConfiguration.PORT_SEPARATOR), "Kafka broker node does not respect hostname:port syntax");
         String[] hostParts = serializedHost.split(KafkaConfiguration.PORT_SEPARATOR);
         String hostname = hostParts[0].toLowerCase();
-        Integer port = Integer.parseInt(hostParts[1].trim());
+        int port = Integer.parseInt(hostParts[1].trim());
         return new HostAddress(hostname, port);
     }
 
@@ -130,9 +130,9 @@ public class KafkaConfiguration {
         Map<String, Object> settings = EnvironmentUtils.getPropertiesStartingWith(environment, "reporters.kafka.settings");
         configProducer.putAll(settings.entrySet().stream().collect(Collectors.toMap(e -> buildkafkaKey(e.getKey()), e -> e.getValue().toString())));
 
-       /* if (!StringUtils.isEmpty(krb5_conf)) {
+        if (!StringUtils.isEmpty(krb5_conf)) {
             System.setProperty("java.security.krb5.conf", krb5_conf);
-        }*/
+        }
         return configProducer;
     }
 

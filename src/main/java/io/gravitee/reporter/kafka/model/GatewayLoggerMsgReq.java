@@ -20,7 +20,7 @@ import org.springframework.beans.BeanUtils;
 import java.sql.Timestamp;
 
 /**
- * Created by pan.wu on 2018/10/29.
+ * 网关日志记录
  */
 public class GatewayLoggerMsgReq extends GatewayLoggerData {
     private String message;
@@ -33,14 +33,14 @@ public class GatewayLoggerMsgReq extends GatewayLoggerData {
      * @param message     消息内容
      * @param env         环境
      */
-    public GatewayLoggerMsgReq(String loggerLevel, String message, String env) {
+    public GatewayLoggerMsgReq (String loggerLevel, String message, String env) {
         this.setMessage(message);
         this.setLoggerLevel(loggerLevel);
         this.setTimestamp(new Timestamp(System.currentTimeMillis()));
         this.setEnv(env);
     }
 
-    public GatewayLoggerMsgReq(String loggerLevel, String env, GatewayLoggerData data) {
+    public GatewayLoggerMsgReq (String loggerLevel, String env, GatewayLoggerData data) {
         this.setLoggerLevel(loggerLevel);
         this.setTimestamp(new Timestamp(System.currentTimeMillis()));
         this.setEnv(env);
@@ -48,7 +48,7 @@ public class GatewayLoggerMsgReq extends GatewayLoggerData {
         BeanUtils.copyProperties(data, this);
     }
 
-    public GatewayLoggerMsgReq(String loggerLevel, String message, String env, GatewayLoggerData data) {
+    public GatewayLoggerMsgReq (String loggerLevel, String message, String env, GatewayLoggerData data) {
         this.setMessage(message);
         this.setLoggerLevel(loggerLevel);
         this.setTimestamp(new Timestamp(System.currentTimeMillis()));
@@ -57,35 +57,35 @@ public class GatewayLoggerMsgReq extends GatewayLoggerData {
         BeanUtils.copyProperties(data, this);
     }
 
-    public String getMessage() {
+    public String getMessage () {
         return message;
     }
 
-    public void setMessage(String message) {
+    public void setMessage (String message) {
         this.message = message;
     }
 
-    public String getLoggerLevel() {
+    public String getLoggerLevel () {
         return loggerLevel;
     }
 
-    public void setLoggerLevel(String loggerLevel) {
+    public void setLoggerLevel (String loggerLevel) {
         this.loggerLevel = loggerLevel;
     }
 
-    public Timestamp getTimestamp() {
+    public Timestamp getTimestamp () {
         return timestamp;
     }
 
-    public void setTimestamp(Timestamp timestamp) {
+    public void setTimestamp (Timestamp timestamp) {
         this.timestamp = timestamp;
     }
 
-    public String getEnv() {
+    public String getEnv () {
         return env;
     }
 
-    public void setEnv(String env) {
+    public void setEnv (String env) {
         this.env = env;
     }
 }

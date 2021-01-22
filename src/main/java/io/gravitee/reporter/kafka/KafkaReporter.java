@@ -30,9 +30,6 @@ import io.gravitee.reporter.api.monitor.Monitor;
 import io.gravitee.reporter.kafka.config.KafkaConfiguration;
 import io.gravitee.reporter.kafka.model.GatewayLoggerMsgReq;
 import io.gravitee.reporter.kafka.model.MessageType;
-import io.gravitee.reporter.kafka.utils.AesUtil;
-import io.gravitee.reporter.kafka.utils.Signature;
-import io.gravitee.reporter.kafka.utils.SignatureChecker;
 import io.vertx.core.json.JsonObject;
 import io.vertx.kafka.client.producer.KafkaProducer;
 import io.vertx.kafka.client.producer.KafkaProducerRecord;
@@ -61,7 +58,7 @@ public class KafkaReporter extends AbstractService implements Reporter {
     private KafkaConfiguration kafkaConfiguration;
 
     @Override
-    protected void doStop() throws Exception {
+    protected void doStop () throws Exception {
         super.doStop();
         if (kafkaProducer != null) {
             kafkaProducer.close(res -> {
@@ -74,9 +71,14 @@ public class KafkaReporter extends AbstractService implements Reporter {
         }
     }
 
+    /**
+     * 处理网关逻辑
+     * @param reportable
+     */
     @Override
-    public void report(Reportable reportable) {
+    public void report (Reportable reportable) {
         if (kafkaProducer != null) {
+            // this
             if (reportable instanceof Log) {
                 Log log = (Log) reportable;
                 Request clientRequest = log.getClientRequest();
@@ -86,49 +88,25 @@ public class KafkaReporter extends AbstractService implements Reporter {
                 gatewayLoggerData.setRequestIp(getIp(clientRequest));
                 gatewayLoggerData.setRequestMethod(clientRequest.getMethod().name());
                 gatewayLoggerData.setTraceId(clientRequest.getHeaders().getFirst("X-Gravitee-Transaction-Id"));
-                gatewayLoggerData.setRequestUrl(URLDecoder.decode(clientRequest.getUri()));
-                ObjectMapper mapper = new ObjectMapper();
+                try {
+                    gatewayLoggerData.setRequestUrl(URLDecoder.decode(clientRequest.getUri(), "utf-8"));
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
                 String requestParams = "";
                 if ("GET".equals(method.name())) {
-                    requestParams = getParams(URLDecoder.decode(clientRequest.getUri()));
+                    try {
+                        requestParams = getParams(URLDecoder.decode(clientRequest.getUri(), "utf-8"));
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
                     if (!StringUtils.isEmpty(requestParams)) {
                         gatewayLoggerData.setRequstData(requestParams);
                     }
                 } else if ("POST".equals(method.name())) {
                     gatewayLoggerData.setRequestUrl(clientRequest.getUri());
-                    String contentType = clientRequest.getHeaders().getFirst("Content-Type");
-                    //表单请求
-                    if (contentType.contains("application/x-www-form-urlencoded")) {
-                        if (!StringUtils.isEmpty(clientRequest.getBody())) {
-                            requestParams = getParamsFromContentType(URLDecoder.decode(clientRequest.getBody()));
-                        }
-                    } else if (contentType.contains("application/json")) {
-                        requestParams = clientRequest.getBody();
-                    }
                     gatewayLoggerData.setRequstData(clientRequest.getBody());
                 }
-                //获取mac address and accessChannel
-                Map<String, Object> map1 = new HashMap(0);
-                try {
-                    if (!StringUtils.isEmpty(requestParams)) {
-                        map1 = mapper.readValue(requestParams, Map.class);
-                    }
-                    String macAddress = "";
-                    if (!StringUtils.isEmpty(map1.get("macAddress"))) {
-                        macAddress = URLDecoder.decode(String.valueOf(map1.get("macAddress")));
-                    } else {
-                        macAddress = clientRequest.getHeaders().getFirst("macAddress");
-                    }
-                    gatewayLoggerData.setMacAddress(macAddress);
-//                    Map accessChannelData = getAccessChannelData(clientRequest, map1);
-//                    String accessChannel = getAccessChannel(accessChannelData, map1);
-//                    LOGGER.info("accessChannel:{}", clientRequest.getHeaders().getFirst("accessChannel"));
-                    gatewayLoggerData.setAccessChannel(clientRequest.getHeaders().getFirst("accessChannel"));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                String weHotelId = getWehotelId(clientRequest, clientResponse, String.valueOf(map1.get("weHotelId")));
-                gatewayLoggerData.setWeHotelId(weHotelId);
                 //相应数据处理
                 gatewayLoggerData.setResponseCode(String.valueOf(clientResponse.getStatus()));
                 gatewayLoggerData.setUsedTimeMS(clientResponse.getHeaders().getFirst("response-time"));
@@ -151,7 +129,7 @@ public class KafkaReporter extends AbstractService implements Reporter {
                         } else {
                             message = String.format("Message %s not written on topic=%s", record.value(), kafkaConfiguration.getKafkaTopic());
                         }
-//                        LOGGER.info(message);
+                        LOGGER.info(message);
                     });
                 }
             }
@@ -160,7 +138,7 @@ public class KafkaReporter extends AbstractService implements Reporter {
     }
 
     @Override
-    public boolean canHandle(Reportable reportable) {
+    public boolean canHandle (Reportable reportable) {
         if (kafkaConfiguration != null) {
             MessageType messageType;
             if (kafkaConfiguration.getMessageTypes().isEmpty()) {
@@ -181,32 +159,15 @@ public class KafkaReporter extends AbstractService implements Reporter {
         return false;
     }
 
-
-    private String getAccessChannel(Map<String, Object> params, Map<String, Object> all) {
-        Signature signature = new Signature();
-        signature.setParameterMap(all);
-        signature.setAppCode(String.valueOf(params.get("appcode")));
-        signature.setSignatureString(String.valueOf(params.get("sign")));
-        signature.setUserId(String.valueOf(params.get("userId")));
-        signature.setClientVersion(String.valueOf(params.get("clientVersion")));
-        try {
-            return SignatureChecker.getChannel(signature);
-        } catch (Exception e) {
-            return "";
-        }
-    }
-
-
     /**
      * Get请求中获取参数
      *
      * @param url
      */
-    private String getParams(String url) {
+    private String getParams (String url) {
         if (!url.contains("?")) {
             return "";
         }
-//        LOGGER.info("url:{}", url);
         ObjectMapper objectMapper = new ObjectMapper();
         String s1 = url.substring(url.indexOf("?") + 1);
         String[] split = s1.split("&");
@@ -235,13 +196,12 @@ public class KafkaReporter extends AbstractService implements Reporter {
      * @param body
      * @return
      */
-    private String getParamsFromContentType(String body) {
+    private String getParamsFromContentType (String body) {
         if (StringUtils.isEmpty(body)) {
             return "";
         }
         ObjectMapper objectMapper = new ObjectMapper();
         String[] split = body.split("&");
-//        LOGGER.info("body:{}", body);
         Map<String, String> resultMap = new HashMap<>(split.length);
         for (String s : split) {
             if (!StringUtils.isEmpty(s)) {
@@ -262,7 +222,7 @@ public class KafkaReporter extends AbstractService implements Reporter {
         return null;
     }
 
-    public final static boolean isJSONValid2(String jsonInString) {
+    public final static boolean isJSONValid2 (String jsonInString) {
         try {
             final ObjectMapper mapper = new ObjectMapper();
             mapper.readTree(jsonInString);
@@ -272,7 +232,7 @@ public class KafkaReporter extends AbstractService implements Reporter {
         }
     }
 
-    private String getIp(Request request) {
+    private String getIp (Request request) {
         String first = request.getHeaders().getFirst("x-forwarded-for");
         if (!StringUtils.isEmpty(first)) {
             return first;
@@ -288,51 +248,5 @@ public class KafkaReporter extends AbstractService implements Reporter {
         return "";
     }
 
-    /**
-     * 从header or 参数里面获取数据
-     *
-     * @param request
-     * @param parmas
-     * @return
-     */
-    private Map getAccessChannelData(Request request, Map parmas) {
-        String appcode = request.getHeaders().getFirst("appcode");
-        if (StringUtils.isEmpty(appcode)) {
-            appcode = String.valueOf(parmas.get("appcode"));
-        }
-        String sign = request.getHeaders().getFirst("sign");
-        if (StringUtils.isEmpty(sign)) {
-            sign = String.valueOf(parmas.get("sign"));
-        }
-        String userId = request.getHeaders().getFirst("userId");
-        if (StringUtils.isEmpty(userId)) {
-            userId = String.valueOf(parmas.get("userId"));
-        }
-        String clientVersion = request.getHeaders().getFirst("clientVersion");
-        if (StringUtils.isEmpty(clientVersion)) {
-            clientVersion = String.valueOf(parmas.get("clientVersion"));
-        }
-        Map<String, String> map = new HashMap<>();
-        map.put("appcode", appcode);
-        map.put("sign", sign);
-        map.put("userId", userId);
-        map.put("clientVersion", clientVersion);
-        return map;
-    }
-
-    private String getWehotelId(Request request, Response response, String weHotelId) {
-        if (StringUtils.isEmpty(weHotelId)) {
-            return "0";
-        }
-        weHotelId = request.getHeaders().getFirst("weHotelId");
-        if (!StringUtils.isEmpty(weHotelId)) {
-            return weHotelId;
-        }
-        weHotelId = response.getHeaders().getFirst("mid");
-        if (!StringUtils.isEmpty(weHotelId)) {
-            return weHotelId;
-        }
-        return AesUtil.decrypts(weHotelId);
-    }
 
 }
