@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gravitee.reporter.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.gravitee.common.http.HttpMethod;
 import io.gravitee.common.service.AbstractService;
 import io.gravitee.reporter.api.Reportable;
@@ -34,6 +36,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.kafka.client.producer.KafkaProducer;
 import io.vertx.kafka.client.producer.KafkaProducerRecord;
 import io.vertx.kafka.client.producer.RecordMetadata;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +61,7 @@ public class KafkaReporter extends AbstractService implements Reporter {
     private KafkaConfiguration kafkaConfiguration;
 
     @Override
-    protected void doStop () throws Exception {
+    protected void doStop() throws Exception {
         super.doStop();
         if (kafkaProducer != null) {
             kafkaProducer.close(res -> {
@@ -73,10 +76,11 @@ public class KafkaReporter extends AbstractService implements Reporter {
 
     /**
      * 处理网关逻辑
+     *
      * @param reportable
      */
     @Override
-    public void report (Reportable reportable) {
+    public void report(Reportable reportable) {
         if (kafkaProducer != null) {
             // this
             if (reportable instanceof Log) {
@@ -138,7 +142,7 @@ public class KafkaReporter extends AbstractService implements Reporter {
     }
 
     @Override
-    public boolean canHandle (Reportable reportable) {
+    public boolean canHandle(Reportable reportable) {
         if (kafkaConfiguration != null) {
             MessageType messageType;
             if (kafkaConfiguration.getMessageTypes().isEmpty()) {
@@ -164,7 +168,7 @@ public class KafkaReporter extends AbstractService implements Reporter {
      *
      * @param url
      */
-    private String getParams (String url) {
+    private String getParams(String url) {
         if (!url.contains("?")) {
             return "";
         }
@@ -196,7 +200,7 @@ public class KafkaReporter extends AbstractService implements Reporter {
      * @param body
      * @return
      */
-    private String getParamsFromContentType (String body) {
+    private String getParamsFromContentType(String body) {
         if (StringUtils.isEmpty(body)) {
             return "";
         }
@@ -222,7 +226,7 @@ public class KafkaReporter extends AbstractService implements Reporter {
         return null;
     }
 
-    public final static boolean isJSONValid2 (String jsonInString) {
+    public final static boolean isJSONValid2(String jsonInString) {
         try {
             final ObjectMapper mapper = new ObjectMapper();
             mapper.readTree(jsonInString);
@@ -232,7 +236,7 @@ public class KafkaReporter extends AbstractService implements Reporter {
         }
     }
 
-    private String getIp (Request request) {
+    private String getIp(Request request) {
         String first = request.getHeaders().getFirst("x-forwarded-for");
         if (!StringUtils.isEmpty(first)) {
             return first;
