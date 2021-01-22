@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,6 +17,9 @@ package io.gravitee.reporter.kafka.model;
 
 import java.util.Arrays;
 
+/**
+ * gravitee 网关日志枚举
+ */
 public enum MessageType {
 
     LOG("log"), MONITOR("monitor"), HEALTH("health"), REQUEST("request");
@@ -27,7 +30,7 @@ public enum MessageType {
         this.type = type;
     }
 
-    public static MessageType getByName(final String value){
+    public static MessageType getByName(final String value) {
         return Arrays.stream(values())
                 .filter(m -> m.name().equalsIgnoreCase(value))
                 .findFirst()
